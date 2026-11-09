@@ -23,6 +23,9 @@ jobs:
       artifact: ${{ env.scheme }}.ipa
       artifact2: ${{ env.scheme }}+SideStore.ipa
     steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '27.2'
       - name: Checkout
         uses: actions/checkout@v6
         with:
