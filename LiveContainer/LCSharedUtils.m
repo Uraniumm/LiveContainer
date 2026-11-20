@@ -21,7 +21,7 @@ NSString* FBSOpenApplicationOptionKeyPayloadURL = @"__PayloadURL";
         void* taskSelf = SecTaskCreateFromSelf(NULL);
         CFErrorRef error = NULL;
         CFTypeRef cfans = SecTaskCopyValueForEntitlement(taskSelf, CFSTR("com.apple.developer.team-identifier"), &error);
-        if(CFGetTypeID(cfans) == CFStringGetTypeID()) {
+        if(cfans && CFGetTypeID(cfans) == CFStringGetTypeID()) {
             ans = (__bridge NSString*)cfans;
         }
         CFRelease(taskSelf);
@@ -58,8 +58,8 @@ NSString* FBSOpenApplicationOptionKeyPayloadURL = @"__PayloadURL";
     static NSString *appGroupID = @"Unknown";
     dispatch_once(&once, ^{
         NSArray* possibleAppGroups = @[
-            [@"group.com.SideStore.SideStore." stringByAppendingString:[self teamIdentifier]],
-            [@"group.com.rileytestut.AltStore." stringByAppendingString:[self teamIdentifier]]
+            [@"group.com.SideStore.SideStore" stringByAppendingPathExtension:[self teamIdentifier]],
+            [@"group.com.rileytestut.AltStore" stringByAppendingPathExtension:[self teamIdentifier]]
         ];
         
         // we prefer app groups with "Apps" in it, which indicate this app group is actually used by the store.
@@ -162,7 +162,6 @@ NSString* FBSOpenApplicationOptionKeyPayloadURL = @"__PayloadURL";
         [workspace openApplicationWithBundleIdentifier:NSUserDefaults.lcMainBundle.bundleIdentifier
                                          configuration:configuration
                                      completionHandler:^(BOOL success, NSError* error) {
-            NSLog(@"success=%d error=%@", success, error);
             completionHandler(success);
         }];
     }
@@ -441,7 +440,8 @@ NSString* FBSOpenApplicationOptionKeyPayloadURL = @"__PayloadURL";
     }
     
     // in LC2, attempt to guess LC1's LiveProcess extension
-    NSString *bundleID = [NSString stringWithFormat:@"com.kdt.livecontainer.%@.LiveProcess", LCSharedUtils.teamIdentifier];
+    NSString *bundleID = [[@"com.kdt.livecontainer" stringByAppendingPathExtension:LCSharedUtils.teamIdentifier]
+                      stringByAppendingPathExtension:@"LiveProcess"];
     if([NSExtension extensionWithIdentifier:bundleID error:nil]) {
         return bundleID;
     }
